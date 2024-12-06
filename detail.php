@@ -1,22 +1,22 @@
 <?php
-// เชื่อมต่อกับฐานข้อมูล
+
 $servername = "localhost";
-$username = "u299560388_651230";
-$password = "PP7759Pb";
-$dbname = "u299560388_651230";
+$username = "";
+$password = "";
+$dbname = "";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// ตรวจสอบการเชื่อมต่อ
+
 if ($conn->connect_error) {
     die("การเชื่อมต่อล้มเหลว: " . $conn->connect_error);
 }
 
-// ตรวจสอบว่ามีการส่งค่า SID หรือไม่
+
 if (isset($_GET['sid'])) {
     $sid = $_GET['sid'];
 
-    // ดึงข้อมูลนักศึกษาจากฐานข้อมูลตาม SID
+   
     $sql_details = "
         SELECT 
             tbl_student.SID,
@@ -41,16 +41,16 @@ if (isset($_GET['sid'])) {
         GROUP BY tbl_student.SID
     ";
 
-    // เตรียม statement และเชื่อมต่อข้อมูล
+    
     if ($stmt = $conn->prepare($sql_details)) {
         $stmt->bind_param("i", $sid);
         $stmt->execute();
 
-        // Bind results
+        
         $stmt->bind_result($sid, $prefixTH, $studentName, $studentLastName, $studentNameEN, $studentLastNameEN, $age, $address, $department, $year, $hobbiesTH, $hobbiesEN);
         
         if ($stmt->fetch()) {
-            // แสดงข้อมูลรายละเอียดของนักศึกษา
+            
             ?>
             <!DOCTYPE html>
             <html lang="th">
@@ -140,5 +140,5 @@ if (isset($_GET['sid'])) {
     }
 }
 
-$conn->close(); // ปิดการเชื่อมต่อฐานข้อมูล
+$conn->close(); 
 ?>
