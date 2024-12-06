@@ -2,18 +2,18 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// เริ่มเซสชัน
+
 session_start();
 
-// Database connection details
+
 $servername = "localhost";
-$username = "u299560388_651230"; 
-$password = "PP7759Pb"; 
-$dbname = "u299560388_651230"; 
+$username = ""; 
+$password = ""; 
+$dbname = ""; 
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// ตรวจสอบการเชื่อมต่อฐานข้อมูล
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -28,12 +28,12 @@ function fetchData($conn, $query) {
             $data[$row['ID']] = $row['Name'];
         }
     } else {
-        die("Error fetching data: " . $conn->error); // แสดงข้อผิดพลาดเมื่อไม่สามารถดึงข้อมูลได้
+        die("Error fetching data: " . $conn->error); 
     }
     return $data;
 }
 
-// Fetch data from Department, City, Subject, Year, Hobby
+
 $departments = fetchData($conn, "SELECT DepID AS ID, Department AS Name FROM tbl_department");
 $cities = fetchData($conn, "SELECT CityID AS ID, CityName AS Name FROM tbl_city");
 $subjects = fetchData($conn, "SELECT SubjectID AS ID, Subject AS Name FROM tbl_subject");
@@ -41,7 +41,7 @@ $years = fetchData($conn, "SELECT YearID AS ID, Year AS Name FROM tbl_year");
 $hobbies = fetchData($conn, "SELECT HobbyID AS ID, HobbyName AS Name FROM tbl_hobby");
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Receive form values
+    
     $Prefix = $_POST['Prefix'];
     $name_th = $_POST['StudentName'];
     $surname_th = $_POST['StudentLastName'];
@@ -61,26 +61,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("กรุณาเลือกงานอดิเรกอย่างน้อยหนึ่งรายการ");
     }
 
-    // Start transaction
+    
     $conn->begin_transaction();
 
     try {
-        // Fetch the maximum StuID (Optional if using AUTO_INCREMENT)
+        
         $result = $conn->query("SELECT COALESCE(MAX(SID), 0) AS max_stu_id FROM tbl_student");
         if (!$result) {
-            die("Query failed: " . $conn->error); // แสดงข้อผิดพลาด
+            die("Query failed: " . $conn->error);
         }
         $row = $result->fetch_assoc();
-        $new_stu_id = $row['max_stu_id'] + 1; // Generate new StuID
+        $new_stu_id = $row['max_stu_id'] + 1; 
 
-        // Insert data into tbl_Student with the new SID
+        
         $stmt = $conn->prepare("INSERT INTO tbl_student (SID, PrefixID, StudentName, StudentLastName, StudentNameEn, StudentLastNameEn, Age, DepID, CityID, Address, Domicille, Telephone, SubjectID, YearID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         
-        // ดึงข้อมูลจาก tbl_prefixes
+        
         $prefixes = fetchData($conn, "SELECT PrefixID AS ID, PrefixTH AS Name FROM tbl_predixes");
 
-        // ในส่วนของการรับค่าจากฟอร์ม
+        
         $Prefix = $_POST['Prefix'];
         $PrefixID = array_search($Prefix, $prefixes);
 
@@ -91,20 +91,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Prepare failed: " . $conn->error);
         }
 
-        // Correctly bind parameters
+        
         $stmt->bind_param("isssssiissssii", $new_stu_id, $PrefixID, $name_th, $surname_th, $name_en, $surname_en, $age, $department, $city, $address, $hometown, $phone, $subject, $year);
         if (!$stmt->execute()) {
             throw new Exception("Error inserting student: " . $stmt->error);
         }
 
-        // Insert data into tbl_Student_Hobby for each selected hobby
+        
         $stmt_hobby = $conn->prepare("INSERT INTO tbl_StudentHobby (SID, HobbyID) VALUES (?, ?)");
         if (!$stmt_hobby) {
             throw new Exception("Prepare failed: " . $conn->error);
         }
 
         foreach ($hobby_ids as $hobby_id) {
-            // Check if this HobbyID exists in tbl_Hobby
+            
             if (array_key_exists($hobby_id, $hobbies)) {
                 $stmt_hobby->bind_param("ii", $new_stu_id, $hobby_id);
                 if (!$stmt_hobby->execute()) {
@@ -115,20 +115,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Commit transaction
+        
         $conn->commit();
         
-        // Set session message for success
+        
         $_SESSION['success_message'] = "บันทึกข้อมูลนักเรียนเรียบร้อยแล้ว";
         
-        // Redirect to master.php after successful insertion
+        
         header("Location: master.php");
-        exit(); // Make sure to exit after the redirect
+        exit(); 
 
     } catch (Exception $e) {
-        // Rollback transaction if an error occurs
+        
         $conn->rollback();
-        error_log($e->getMessage()); // Log error for debugging
+        error_log($e->getMessage()); 
         echo "เกิดข้อผิดพลาด: " . $e->getMessage();
         
     }
@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     margin: 0;
     padding: 0;
     font-family: 'Prompt', sans-serif;
-    background-color: #fce4ec; /* สีพื้นหลังชมพูอ่อน */
+    background-color: #fce4ec; 
     overflow-y: scroll;
 }
 
@@ -156,15 +156,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     max-width: 700px;
     margin: 50px auto;
     padding: 30px;
-    background-color: #ffffff; /* สีขาว */
+    background-color: #ffffff; 
     border-radius: 10px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
-    border: 1px solid #f8bbd0; /* เส้นขอบสีชมพูอ่อน */
+    border: 1px solid #f8bbd0; 
 }
 
 h1 {
     text-align: center;
-    color: #d50032; /* สีแดงเข้ม */
+    color: #d50032; 
     margin-bottom: 30px;
     font-size: 32px;
     font-weight: bold;
@@ -187,7 +187,7 @@ textarea {
     width: 100%;
     padding: 15px;
     margin-bottom: 15px;
-    border: 1px solid #f06292; /* สีชมพู */
+    border: 1px solid #f06292; 
     border-radius: 5px;
     font-size: 16px;
     box-sizing: border-box;
@@ -201,12 +201,12 @@ input[type="tel"]:focus,
 input[type="email"]:focus,
 select:focus,
 textarea:focus {
-    border-color: #d50032; /* สีแดงเข้มเมื่อโฟกัส */
-    background-color: #ffe0e6; /* สีพื้นหลังชมพูเมื่อโฟกัส */
+    border-color: #d50032; 
+    background-color: #ffe0e6; 
 }
 
 input[type="submit"] {
-    background-color: #f48fb1; /* สีชมพูสำหรับปุ่มบันทึก */
+    background-color: #f48fb1; 
     color: white;
     border: none;
     border-radius: 5px;
@@ -219,12 +219,12 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-    background-color: #d50032; /* สีชมพูเข้มเมื่อ hover */
-    transform: translateY(-3px); /* เพิ่มการเลื่อนเมื่อ hover */
+    background-color: #d50032; 
+    transform: translateY(-3px); 
 }
 
 .back-button {
-    background-color: #f06292; /* สีแดงสำหรับปุ่มกลับ */
+    background-color: #f06292; 
     color: white;
     border: none;
     border-radius: 5px;
@@ -234,53 +234,52 @@ input[type="submit"]:hover {
     font-weight: bold;
     transition: background-color 0.3s, transform 0.3s;
     width: 100%;
-    margin-top: 10px; /* เพิ่มระยะห่างด้านบน */
+    margin-top: 10px; 
 }
 
 .back-button:hover {
-    background-color: #c51162; /* สีแดงเข้มเมื่อ hover */
-    transform: translateY(-3px); /* เพิ่มการเลื่อนเมื่อ hover */
-}
+    background-color: #c51162; 
+    transform: translateY(-3px); 
 
 .hobbies-label {
     margin: 15px 0;
     font-weight: bold;
-    color: #d50032; /* สีแดงเข้ม */
+    color: #d50032; 
 }
 
 .hobbies-wrapper {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 10px; /* เพิ่มช่องว่างระหว่างคอลัมน์ */
+    gap: 10px; 
 }
 
 .hobbies-column {
-    flex: 1 1 48%; /* ปรับให้กว้างขึ้น */
+    flex: 1 1 48%; 
     display: flex;
     align-items: center;
-    border: 1px solid #f06292; /* เส้นขอบชมพู */
+    border: 1px solid #f06292; 
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
     transition: border-color 0.3s, background-color 0.3s;
-    background-color: #f8bbd0; /* สีพื้นหลังกล่องชมพู */
+    background-color: #f8bbd0; 
 }
 
 .hobbies-column:hover {
-    border-color: #d50032; /* สีแดงเมื่อ hover */
-    background-color: #ffebee; /* สีพื้นหลังชมพูอ่อนเมื่อ hover */
+    border-color: #d50032; 
+    background-color: #ffebee; 
 }
 
 .hobby-checkbox {
     margin-right: 10px;
-    accent-color: #d50032; /* เปลี่ยนสีของ checkbox */
+    accent-color: #d50032; 
 }
 
-/* Media Queries for Responsiveness */
+
 @media (max-width: 768px) {
     .hobbies-column {
-        flex: 1 1 100%; /* สลับแนวตั้งในหน้าจอเล็ก */
+        flex: 1 1 100%;
     }
 }
 .footer {
