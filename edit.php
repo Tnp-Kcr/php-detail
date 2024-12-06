@@ -2,27 +2,27 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Database connection details
-$servername = "localhost";
-$username = "u299560388_651230"; // Change to your username
-$password = "PP7759Pb"; // Change to your password
-$dbname = "u299560388_651230"; // Database name
 
-// Connect to the database
+$servername = "localhost";
+$username = ""; // Change to your username
+$password = ""; // Change to your password
+$dbname = ""; // Database name
+
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// รับค่า SID จาก URL
+
 $SID = isset($_GET['sid']) ? $_GET['sid'] : '';
 
 
 
 
-// Fetch student data for the form
+
 $stmt = $conn->prepare("SELECT SID, PrefixID, StudentName, StudentLastName, StudentNameEn, StudentLastNameEn, Age, DepID, CityID, Address, Domicille, Telephone, SubjectID, YearID FROM tbl_student WHERE SID = ?");
 $stmt->bind_param("i", $SID);
 $stmt->execute();
@@ -33,10 +33,10 @@ if (!$SID) {
     die("ไม่พบนักเรียนที่ต้องการแก้ไข");
 }
 
-// Store data in an array for the form
+
 $student = [
     'SID' => $SID,
-    'Prefix' => $PrefixID, // เปลี่ยนจาก 'PrefixTH' เป็น 'Prefix'
+    'Prefix' => $PrefixID, 
     'StudentName' => $StudentName,
     'StudentLastName' => $StudentLastName,
     'StudentNameEn' => $StudentNameEn,
@@ -51,7 +51,7 @@ $student = [
     'YearID' => $YearID
 ];
 
-// Close statement
+
 $stmt->close();
 
 $prefixes = [];
@@ -61,7 +61,7 @@ while ($row = $prefix_result->fetch_assoc()) {
 }
 
 
-// Fetch data from tables
+
 $departments = [];
 $dep_result = $conn->query("SELECT DepID, Department FROM tbl_department");
 while ($row = $dep_result->fetch_assoc()) {
@@ -98,18 +98,18 @@ while ($row = $hobby_result->fetch_assoc()) {
 }
 
 
-// Fetch student hobbies
+
 $student_hobbies = [];
 $hobby_stmt = $conn->prepare("SELECT HobbyID FROM tbl_StudentHobby WHERE SID = ?");
-$hobby_stmt->bind_param("i", $SID); // ใช้ $SID แทน $stu_id
+$hobby_stmt->bind_param("i", $SID); 
 $hobby_stmt->execute();
 $hobby_stmt->bind_result($hobby_id);
 while ($hobby_stmt->fetch()) {
-    $student_hobbies[] = $hobby_id; // Store HobbyID in an array
+    $student_hobbies[] = $hobby_id;
 }
 $hobby_stmt->close();
 
-// Form submission handling
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $Prefix = $_POST['Prefix'];
     $name_th = $_POST['StudentName'];
@@ -130,20 +130,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("กรุณาเลือกงานอดิเรกอย่างน้อยหนึ่งรายการ");
     }
 
-    // Begin transaction
+    
     $conn->begin_transaction();
     try {
-        // Update student data
+        
         $stmt = $conn->prepare("UPDATE tbl_student SET PrefixID = ?, StudentName = ?, StudentLastName = ?, StudentNameEn = ?, StudentLastNameEn = ?, Age = ?, DepID = ?, CityID = ?, Address = ?, Domicille = ?, Telephone = ?, SubjectID = ?, YearID = ? WHERE SID = ?");
         $stmt->bind_param("sssssiissssiii", $Prefix, $name_th, $surname_th, $name_en, $surname_en, $age, $department, $city, $address, $hometown, $phone, $subject, $year, $SID);
         if (!$stmt->execute()) {
             throw new Exception("Error updating student: " . $stmt->error);
         }
 
-        // Delete old hobbies
+        
         $conn->query("DELETE FROM tbl_StudentHobby WHERE SID = $SID");
 
-        // Insert new hobbies
+        
         $stmt_hobby = $conn->prepare("INSERT INTO tbl_StudentHobby (SID, HobbyID) VALUES (?, ?)");
         foreach ($hobby_ids as $hobby_id) {
             $stmt_hobby->bind_param("ii", $SID, $hobby_id);
@@ -152,11 +152,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Commit transaction
+        
         $conn->commit();
         echo "<script>alert('แก้ไขข้อมูลนักเรียนเรียบร้อยแล้ว'); window.location.href='master.php';</script>";
     } catch (Exception $e) {
-        // Rollback transaction on error
+        
         $conn->rollback();
         echo "เกิดข้อผิดพลาด: " . $e->getMessage();
     }
@@ -176,15 +176,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     color: #333;
     margin: 0;
     padding: 20px;
-    min-height: 100vh; /* ทำให้เต็มความสูงของหน้าจอ */
-    left: 0; /* ให้แน่ใจว่าฟุตเตอร์ขยายเต็มความกว้าง */
-    z-index: 1000; /* ทำให้ฟุตเตอร์อยู่เหนือเนื้อหา */
+    min-height: 100vh; 
+    left: 0; 
+    z-index: 1000; 
 }
 
 .form-container {
     max-width: 600px;
     margin: auto;
-    background-color: #fff0f5; /* สีพื้นหลังฟอร์ม */
+    background-color: #fff0f5; 
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
@@ -192,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 h1 {
     text-align: center;
-    color: #d62828; /* สีแดง */
+    color: #d62828; 
     margin-bottom: 20px;
 }
 
@@ -200,7 +200,7 @@ label {
     display: block;
     margin: 10px 0 5px;
     font-weight: bold;
-    color: #d62828; /* สีแดง */
+    color: #d62828; 
 }
 
 input[type="text"],
@@ -208,7 +208,7 @@ input[type="number"],
 select {
     width: 100%;
     padding: 10px;
-    border: 1px solid #d62828; /* ขอบสีแดง */
+    border: 1px solid #d62828; 
     border-radius: 5px;
     box-sizing: border-box;
     margin-bottom: 15px;
@@ -217,12 +217,12 @@ select {
 input[type="text"]:focus,
 input[type="number"]:focus,
 select:focus {
-    border-color: #b02020; /* ขอบเข้มขึ้นเมื่อเลือก */
+    border-color: #b02020; 
     outline: none;
 }
 
 input[type="submit"] {
-    background-color: #d62828; /* ปุ่มสีแดง */
+    background-color: #d62828; 
     color: white;
     border: none;
     padding: 10px;
@@ -233,11 +233,11 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-    background-color: #b02020; /* ปุ่มแดงเข้มขึ้นเมื่อชี้ */
+    background-color: #b02020; 
 }
 
 .back-button {
-    background-color: #ff69b4; /* ปุ่มกลับเป็นสีชมพู */
+    background-color: #ff69b4; 
     color: white;
     border: none;
     padding: 10px;
@@ -248,7 +248,7 @@ input[type="submit"]:hover {
 }
 
 .back-button:hover {
-    background-color: #d0208a; /* ปุ่มชมพูเข้มขึ้นเมื่อชี้ */
+    background-color: #d0208a; 
 }
 
 input[type="checkbox"] {
