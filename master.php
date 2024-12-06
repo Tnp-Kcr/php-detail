@@ -2,16 +2,16 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// การเชื่อมต่อกับฐานข้อมูล
-$servername = "localhost";
-$username = "u299560388_651230";
-$password = "PP7759Pb";
-$dbname = "u299560388_651230";
 
-// สร้างการเชื่อมต่อ
+$servername = "localhost";
+$username = "";
+$password = "";
+$dbname = "";
+
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// ตรวจสอบการเชื่อมต่อ
+
 if ($conn->connect_error) {
     die("การเชื่อมต่อล้มเหลว: " . $conn->connect_error);
 }
@@ -19,21 +19,21 @@ if ($conn->connect_error) {
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['sid'])) {
     $sidToDelete = $_POST['sid'];
 
-    // ตรวจสอบค่าที่ได้รับ
+    
     error_log("SID ที่จะลบ: " . $sidToDelete);
 
-    // สร้างคำสั่ง SQL สำหรับการลบ
+    
     $deleteSql = "DELETE FROM tbl_student WHERE SID = ?";
     
-    // เตรียมคำสั่ง SQL
+    
     if ($stmt = $conn->prepare($deleteSql)) {
-        // Bind parameters
+        
         $stmt->bind_param("i", $sidToDelete);
-        // Execute
+        
         if ($stmt->execute()) {
-            // ลบสำเร็จให้เปลี่ยนเส้นทางไปยังหน้าเดิม
-            header("Location: " . $_SERVER['PHP_SELF']); // เปลี่ยนกลับมายังหน้าเดิม
-            exit(); // หยุดการทำงานของสคริปต์
+            
+            header("Location: " . $_SERVER['PHP_SELF']); 
+            exit(); 
         } else {
             echo "<script>alert('เกิดข้อผิดพลาดในการลบข้อมูล: " . $stmt->error . "');</script>";
         }
@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['sid'])) {
         echo "<script>alert('ไม่สามารถเตรียมคำสั่ง SQL ได้');</script>";
     }
 
-    // ตรวจสอบว่ามีการลบข้อมูล
+    
     $resultCheck = $conn->query("SELECT * FROM tbl_student WHERE SID = $sidToDelete");
     if ($resultCheck->num_rows === 0) {
         error_log('ข้อมูลถูกลบเรียบร้อยแล้ว');
@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['sid'])) {
     }
 }
 
-// ดึงข้อมูลนักศึกษาจากตารางที่เกี่ยวข้อง
+
 $sql = "
     SELECT 
         tbl_student.SID,
@@ -83,7 +83,7 @@ $result = $conn->query($sql);
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f9f9f9; /* สีพื้นหลัง */
+            background-color: #f9f9f9; 
             color: #333;
             margin: 0;
             padding: 0;
@@ -91,7 +91,7 @@ $result = $conn->query($sql);
 
         h1 {
             text-align: center;
-            color: #d62828; /* สีแดงเข้ม */
+            color: #d62828; 
             font-size: 36px;
             margin: 20px 0;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
@@ -101,7 +101,7 @@ $result = $conn->query($sql);
             width: 80%;
             margin: 20px auto;
             border-collapse: collapse;
-            background-color: #fff; /* สีพื้นหลังของตาราง */
+            background-color: #fff; 
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -114,20 +114,20 @@ $result = $conn->query($sql);
         }
 
         th {
-            background-color: #d62828; /* สีแดงเข้ม */
+            background-color: #d62828; 
             color: white;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         td {
-            background-color: #ffffff; /* สีพื้นหลังเซลล์ */
+            background-color: #ffffff; 
             color: #333;
             transition: background-color 0.3s;
         }
 
         tr:hover td {
-            background-color: #ffe5e5; /* สีพื้นหลังเมื่อ hover */
+            background-color: #ffe5e5; 
         }
 
         .footer {
@@ -154,7 +154,7 @@ $result = $conn->query($sql);
             width: 200px;
             padding: 10px;
             text-align: center;
-            background-color: #d62828; /* สีแดงเข้ม */
+            background-color: #d62828; 
             color: white;
             text-decoration: none;
             border-radius: 5px;
@@ -164,12 +164,12 @@ $result = $conn->query($sql);
         }
 
         .register-button:hover {
-            background-color: #b02020; /* สีแดงเข้มขึ้นเมื่อ hover */
+            background-color: #b02020; 
             transform: translateY(-3px);
         }
 
         .edit-button {
-            color: #007bff; /* สีน้ำเงิน */
+            color: #007bff; 
             text-decoration: none;
             font-weight: bold;
             border: none;
@@ -178,7 +178,7 @@ $result = $conn->query($sql);
             transition: color 0.3s;
         }
         .detail-button {
-            color: #333; /* สีน้ำเงิน */
+            color: #333; 
             text-decoration: none;
             font-weight: bold;
             border: none;
@@ -188,11 +188,11 @@ $result = $conn->query($sql);
         }
 
         .edit-button:hover {
-            color: #0056b3; /* สีน้ำเงินเข้มขึ้นเมื่อ hover */
+            color: #0056b3; 
         }
 
         .delete-button {
-            color: #dc3545; /* สีแดง */
+            color: #dc3545; 
             text-decoration: none;
             font-weight: bold;
             border: none;
@@ -202,16 +202,16 @@ $result = $conn->query($sql);
         }
 
         .delete-button:hover {
-            color: #a71c24; /* สีแดงเข้มขึ้นเมื่อ hover */
+            color: #a71c24; 
         }
 
         @media (max-width: 768px) {
             table {
-                width: 90%; /* ปรับความกว้างเมื่อหน้าจอเล็ก */
+                width: 90%; 
             }
 
             .register-button {
-                width: 100%; /* กำหนดให้ปุ่มเต็มกว้างเมื่อหน้าจอเล็ก */
+                width: 100%; 
             }
         }
     </style>
@@ -230,11 +230,11 @@ $result = $conn->query($sql);
             <th>ปีเกิด</th>
             <th>รายละเอียดเพิ่มเติม</th>
             <th>แก้ไข</th>
-            <th>ลบ</th> <!-- เพิ่มคอลัมน์สำหรับปุ่ม Delete -->
+            <th>ลบ</th> 
         </tr>
         <?php
         if ($result->num_rows > 0) {
-            // แสดงข้อมูลของนักศึกษา
+            
             while($row = $result->fetch_assoc()) {
                 echo "<tr>
                         <td>" . $row["SID"]. "</td>
