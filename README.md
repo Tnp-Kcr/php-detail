@@ -1,2 +1,2 @@
 # php-detail
-Making a web page using php.
+Creating a web page with php. Including making data tables with sql.
